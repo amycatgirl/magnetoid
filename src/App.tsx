@@ -26,19 +26,6 @@ import Userbar from "./components/ui/navigation/Userbar";
 import Settings from "./components/ui/settings";
 import * as Solenoid from "./lib/solenoid";
 
-// Way to know if user notifications are enabled
-let notification_access: boolean;
-
-// Functions
-const onImageChange = (e: any) => {
-  Solenoid.setImages([...e.target.files]);
-};
-const onAvatarChange = (
-  e: Event & { currentTarget: HTMLInputElement; target: Element }
-) => {
-  if (e.currentTarget.files) Solenoid.setAvatarImage(e.currentTarget.files);
-};
-
 // Setup
 client.on("ready", async () => {
   Solenoid.setLoggedIn(true);
@@ -62,14 +49,7 @@ client.on("packet", async (info) => {
   }
 });
 
-// Image Attaching
-createEffect(() => {
-  const newImageUrls: any[] = [];
-  Solenoid.images()?.forEach((image) =>
-    newImageUrls.push(URL.createObjectURL(image))
-  );
-  Solenoid.setImgUrls(newImageUrls);
-});
+
 
 // Upload image to autumn.revolt.chat
 async function uploadFile(
@@ -161,27 +141,6 @@ async function sendMessage(message: string) {
   Solenoid.setShowPicker(false);
 }
 
-// AutoLogin
-async function loginWithSession(session: unknown & { action: "LOGIN", token: string }) {
-  try {
-    if (Solenoid.usr.session_type === "email" && session) {
-      await client.login(session.token, "user").catch((e) => {
-        throw e;
-      });
-      Solenoid.setSettings("session_type", "email");
-      Solenoid.setSettings("session", session);
-      Solenoid.setLoggedIn(true);
-    } else {
-      return;
-    }
-  } catch (e) {
-    Solenoid.setSettings("session", null);
-    Solenoid.setUser("session_type", undefined);
-    Solenoid.setUser("user_id", undefined);
-    Solenoid.setUser("username", undefined);
-  }
-}
-
 // Mobx magic (Thanks Insert :D)
 let id = 0;
 enableExternalSource((fn, trigger) => {
@@ -196,12 +155,16 @@ enableExternalSource((fn, trigger) => {
   };
 });
 
-
-// Automatically log in when session is found and not logged in
-if (Solenoid.settings.session && !Solenoid.loggedIn())
-  loginWithSession(Solenoid.settings.session);
-
 const App: Component = () => {
+
+  // Image Attaching
+  createEffect(() => {
+    const newImageUrls: any[] = [];
+    Solenoid.images()?.forEach((image) =>
+    newImageUrls.push(URL.createObjectURL(image))
+    );
+    Solenoid.setImgUrls(newImageUrls);
+  });
   return (
     <div class="flex flex-grow-0 flex-col w-full h-screen">
       <LoginComponent
@@ -248,7 +211,7 @@ const App: Component = () => {
                 </div>
               )}
               <div>
-                <MessageContainer />
+                <Show when={Solenoid.messages()}><MessageContainer /></Show>
                 {Solenoid.servers.current_channel && <Userbar />}
               </div>
             </div>

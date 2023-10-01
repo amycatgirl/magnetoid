@@ -26,38 +26,30 @@ const [email, setEmail] = createSignal<string>();
 const [password, setPassword] = createSignal<string>();
 const [error, setError] = createSignal<string>();
 
-const Login: Component<LoginComponent> = ({
-  client,
-  userSetter,
-  configSetter,
-  solenoid_config,
-  logSetter,
-  logged,
-}) => {
+const Login: Component<LoginComponent> = (props) => {
   // Functions
   // Login With Token and Enable Bot Mode
   async function logIntoRevolt(token: string) {
     try {
-      await client.login(token, "bot");
+      await props.client.login(token, "bot");
+      props.logSetter(true);
+      props.userSetter("session_type", "token");
+      props.configSetter("session", props.client.session);
     } catch (e: any) {
-      if (solenoid_config.debug === true) {
+      if (props.solenoid_config.debug) {
         console.log(e);
         setError(e);
       } else {
         alert(e);
         setError(e);
       }
-    } finally {
-      logSetter(true);
-      userSetter("session_type", "token");
-      configSetter("session", client.session);
     }
   }
 
   // Login With Email and Password and Enable User Mode
   async function loginWithEmail(email: string, password: string) {
     try {
-      await client
+      await props.client
         .authenticate({
           email: email,
           password: password,
@@ -66,46 +58,43 @@ const Login: Component<LoginComponent> = ({
         .catch((e) => {
           throw e;
         })
-        .finally(() => {
-          batch(() => {
-            logSetter(true);
-            userSetter("session_type", "email");
-            configSetter("session", client.session);
-          });
-        });
+      batch(() => {
+        props.logSetter(true);
+        props.userSetter("session_type", "email");
+        props.configSetter("session", props.client.session);
+      })
+
     } catch (e: any) {
-      if (solenoid_config.debug) {
+      if (props.solenoid_config.debug) {
         console.log(e);
-        setError(e);
-      } else {
-        setError(e);
       }
+      setError(e);
     }
   }
-  async function loginWithSession(session: any & { action: "LOGIN", token: string }) {
+  async function loginWithSession(session: unknown & { action: "LOGIN", token: string }) {
     try {
-      await client.login(session, "user").catch((e) => {
+      await props.client.login(session.token, "user").catch((e) => {
         throw e;
       });
       batch(() => {
-        configSetter("session_type", "email");
-        configSetter("session", session);
-        logSetter(true);
+        props.configSetter("session_type", "email");
+        props.configSetter("session", session);
+        props.logSetter(true);
       });
     } catch (e: any) {
       setError(e);
     }
   }
 
-  onMount(() => {
-    if (solenoid_config.session) {
-      loginWithSession(solenoid_config.session);
+  onMount(async () => {
+    if (props.solenoid_config.session) {
+      await loginWithSession(props.solenoid_config.session);
     }
   });
 
   return (
     <>
-      {!logged() && (
+    <Show when={!props.logged()}>
         <>
           <div class="lg:absolute lg:w-1/3 lg:h-auto flex flex-col h-full w-full shadow-none lg:top-36 lg:left-6 md:sm:bg-base-100 lg:bg-base-300/60 backdrop-blur-xl container">
             <div class="mx-10 my-10 flex items-center gap-2">
@@ -150,7 +139,7 @@ const Login: Component<LoginComponent> = ({
                     placeholder="Email"
                     value={email() || ""}
                     onInput={(e: any) => setEmail(e.currentTarget.value)}
-                  ></input>
+                   />
                   <input
                     class="input input-bordered w-full my-2"
                     id="password"
@@ -158,14 +147,14 @@ const Login: Component<LoginComponent> = ({
                     placeholder="Password"
                     value={password() || ""}
                     onInput={(e: any) => setPassword(e.currentTarget.value)}
-                  ></input>
+                   />
                   <input
                     class="input w-full my-2"
                     id="mfa"
                     type="text"
                     placeholder="2fa Token (Optional, Not yet implemented)"
                     disabled
-                  ></input>
+                   />
                   <button class="btn w-full my-2" id="submit" type="submit">
                     Login with Email
                   </button>
@@ -181,9 +170,9 @@ const Login: Component<LoginComponent> = ({
 
             <form
               class="mx-10"
-              onSubmit={(e) => {
+              onSubmit={async (e) => {
                 e.preventDefault();
-                logIntoRevolt(token() ?? "");
+                await logIntoRevolt(token() ?? "");
               }}
             >
               <div class="flex flex-col">
@@ -198,18 +187,18 @@ const Login: Component<LoginComponent> = ({
                     placeholder="Token"
                     value={token() || ""}
                     onInput={(e: any) => setToken(e.currentTarget.value)}
-                  ></input>
+                   />
                   <button class="btn w-full my-2" id="submit" type="submit">
                     Login
                   </button>
                 </div>
               </div>
             </form>
-            {solenoid_config.session && (
+            {props.solenoid_config.session && (
               <div class="flex flex-col w-full items-center gap-2">
               <button
                 class="btn btn-success w-60"
-                onClick={() => loginWithSession(solenoid_config.session)}
+                onClick={() => loginWithSession(props.solenoid_config.session)}
               >
                 {revolt.ws.ready ? "Loading..." :  "Use Existing Session"}
               </button>
@@ -245,7 +234,7 @@ const Login: Component<LoginComponent> = ({
             />
           </div>
         </>
-      )}
+      </Show>
     </>
   );
 };

@@ -1,6 +1,4 @@
-import classNames from "classnames";
 import { Component, For, Show } from "solid-js";
-import { className } from "solid-js/web/types";
 import * as Solenoid from "../../../../lib/solenoid";
 import { Markdown } from "../../../markdown";
 
@@ -22,26 +20,38 @@ const ChannelNavigation: Component = () => {
       </div>
       <For each={Solenoid.servers.current_server?.orderedChannels}>
         {category => (
-          <div class="flex flex-col gap-1">
-            <p class="font-semibold m-2">{category.name}</p>
-            <For each={category.channels}>
-              {channel => (
-                <button class={classNames({
-                  "w-full": true,
-                  "h-auto": true,
-                  "bg-neutral": true,
-                  "items-center": true,
-                  "p-[0.35rem]": true,
-                  "flex": true,
-                  "gap-2": true,
-                  "btn-primary": channel.id === Solenoid.servers.current_channel?.id
-                })} onClick={() => {
-                  Solenoid.setServers("current_channel", channel)
-                  getMessagesFromChannel()
-                }}><Markdown content={channel.name} /> {channel.unread && <div class="w-2 h-2 bg-white ml-auto mr-2 rounded-full"></div>}</button>
-              )}
-            </For>
-          </div>
+          <details open>
+            <summary class="font-semibold m-2">{category.name}</summary>
+            <div  class="flex flex-col gap-1">
+              <For each={category.channels}>
+                {channel => (
+                  <button
+                    class="w-full h-auto rounded-md items-center p-[0.35rem] flex gap-2"
+                    classList={{
+                    "text-base-content": channel.id !== Solenoid.servers.current_channel?.id,
+                      "text-accent-content": channel.id === Solenoid.servers.current_channel?.id,
+                      "bg-base-300": channel.id !== Solenoid.servers.current_channel?.id,
+                      "btn-accent": channel.id === Solenoid.servers.current_channel?.id
+                    }}
+                    onClick={async () => {
+                      Solenoid.setServers("current_channel", channel)
+                      Solenoid.setMessages(undefined);
+                      await getMessagesFromChannel()
+                  }}>
+                    <Markdown content={channel.name} />
+                    <Show when={channel.unread}>
+                      <div class="w-2 h-2 ml-auto mr-2 rounded-full "
+                        classList={{
+                        "bg-accent-content": channel.id === Solenoid.servers.current_channel?.id,
+                        "bg-base-content": channel.id !== Solenoid.servers.current_channel?.id
+                      }}/>
+                    </Show>
+                  </button>
+                  )}
+              </For>
+            </div>
+
+          </details>
         )}
       </For>
     </div>

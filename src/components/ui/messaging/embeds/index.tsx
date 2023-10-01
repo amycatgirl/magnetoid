@@ -1,5 +1,5 @@
-import { Message } from "revolt.js";
-import { Component, createSignal, Show } from "solid-js";
+import {Embed, EmbedMedia, EmbedWeb, Message} from "revolt-toolset";
+import { Component, createSignal, Match, Show, Switch } from "solid-js";
 import { For } from "solid-js";
 import { Markdown } from "../../../markdown";
 
@@ -11,68 +11,67 @@ const RevoltEmbeds: Component<ComponentProps> = (props) => {
   const [canLoadIcon, setCanLoadIcon] = createSignal<boolean>(true);
   return (
     <For each={props.message.embeds}>
-      {(embed) => {
-        if (embed.type === "Website") {
-          return (
-            <div class="card w-full bg-base-100">
-              <Show when={embed.image}>
-                <figure>
-                  <img src={embed.image?.url || ""} />
+      {(embed) => (
+        <Switch>
+          <Match when={embed.isWeb()}>
+            <div class="card max-w-md bg-base-100">
+              <Show when={(embed as EmbedWeb).media}>
+                <figure class="max-h-28">
+                  <img src={(embed as EmbedWeb).media.url || ""} />
                 </figure>
               </Show>
-              <Show when={embed.title || embed.description}>
-                <div class={`card-body rounded-bl-2xl break-words text-neutral`}>
+              <Show when={(embed as EmbedWeb).title || (embed as EmbedWeb).description}>
+                <div class={`card-body rounded-bl-2xl break-keep text-neutral`}>
                   <span class="flex items-center gap-2">
                     <Show when={!canLoadIcon()}>
                       <img
-                        src={embed.icon_url || ""}
+                        src={(embed as EmbedWeb).iconURL || ""}
                         class="w-5"
                         onError={() => setCanLoadIcon(false)}
                       />
                     </Show>
-                    <h2 class="text-current card-title break-normal">{embed.title}</h2>
+                    <h2 class="text-current card-title break-normal">{(embed as EmbedWeb).title}</h2>
                   </span>
-                  <Show when={embed.description}>
-                    <Markdown content={embed.description || ""} />
+                  <Show when={(embed as EmbedWeb).description}>
+                    <Markdown content={(embed as EmbedWeb).description || ""} />
                   </Show>
-                  <Show when={embed.original_url && embed.site_name}>
+                  <Show when={(embed as EmbedWeb).originalURL && (embed as EmbedWeb).siteName}>
                     <div class="card-actions justify-end">
                       <a
-                        href={embed.original_url || ""}
+                        href={(embed as EmbedWeb).originalURL || ""}
                         class="btn btn-primary"
-                      >
-                        Go to {embed.site_name}
+                        >
+                        Go to {(embed as EmbedWeb).siteName}
                       </a>
                     </div>
                   </Show>
                 </div>
               </Show>
             </div>
-          );
-        } else if (embed.type === "Text") {
-          return (
+          </Match>
+          <Match when={embed.isText()}>
             <div class="card w-96 m:w-auto bg-base-100">
               <div
                 class={`card-body border-l-2 rounded-l-2xl text-neutral`}
                 style={{
-                  "border-left-color": embed.colour || "#7ccbff",
+                "border-left-color": (embed as Embed).color || "#7ccbff",
                 }}
-              >
-                <h2 class="card-title">{embed.title}</h2>
-                <Markdown content={embed.description || ""} />
+                >
+                <h2 class="card-title">{(embed as Embed).title}</h2>
+                <Markdown content={(embed as Embed).description || ""} />
               </div>
             </div>
-          );
-        } else if (embed.type === "Image") {
-          return (
+          </Match>
+          <Match when={embed.isMedia()}>
             <div class="card w-96 m:w-10 bg-base-100">
               <figure>
-                <img src={embed.url} />
+                <img src={(embed as EmbedMedia).url} />
               </figure>
             </div>
-          );
-        }
-      }}
+          </Match>
+        </Switch>
+        )
+      }
     </For>
   );
 };

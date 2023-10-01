@@ -1,13 +1,7 @@
-# <img src="https://github.com/stationaryStation/Solenoid/blob/ui/public/favicon.png?raw=true" width="24" height="24" /> Solenoid [![Build Status](https://github.com/stationaryStation/Solenoid/actions/workflows/node.js.yml/badge.svg)](https://github.com/stationaryStation/Solenoid/actions/workflows/node.js.yml) [![wakatime](https://wakatime.com/badge/user/adf943d7-beca-4d63-a4d4-f56bba8b3798/project/a9fe3942-09a7-45d9-86ad-1df756ce199f.svg)](https://wakatime.com/badge/user/adf943d7-beca-4d63-a4d4-f56bba8b3798/project/a9fe3942-09a7-45d9-86ad-1df756ce199f)
-A minimal, yet functional third-party revolt.chat client
+# <img src="https://github.com/stationaryStation/Solenoid/blob/ui/public/favicon.png?raw=true" width="24" height="24" /> Magnetoid
+A kinda functional third-party revolt.chat client
 
-### Reasons to use it
-
-1. Fast
-2. Clean Looking
-3. Full of useful features
-
-### How 2 run
+### Testing localy
 Right now you can run it using `pnpm`
 
 ```bash
@@ -25,8 +19,6 @@ pnpm run dev
 
 ```
 
-Or you can go to [the official site](https://ui.solenoid.vercel.app)
-
 ### Features
 
 - [x] Send Messages
@@ -41,13 +33,6 @@ Or you can go to [the official site](https://ui.solenoid.vercel.app)
 - [x] Role Colors
 - [x] Emoji Picker
 - [x] GIFBox Support
-
-### Features Missing
-
-- [ ] Everything else
-
-### Why
-I wanted to learn SolidJS because I heard it was blazingly fast and cool, so I decided to make a revolt.chat client to challenge my brain (and my sanity).
 
 
 ### Special thanks

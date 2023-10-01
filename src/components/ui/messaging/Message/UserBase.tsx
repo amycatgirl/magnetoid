@@ -2,30 +2,22 @@ import { BaseMessage, Client, Message } from "revolt-toolset";
 import {
   Accessor,
   Component,
+    createEffect,
   createResource,
   createSignal,
   For,
   Match,
-  Setter,
   Show,
-  Switch
+  Suspense,
+  Switch,
 } from "solid-js";
-import { css } from "solid-styled-components";
-import type { reply, settings } from "../../../../types";
 
-import classNames from "classnames";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import {
-  BiSolidLeftArrowAlt,
-  BiSolidRightArrowAlt,
-  BiSolidShieldX,
-  BiSolidUserX
-} from "solid-icons/bi";
-import { servers, settings as config } from "../../../../lib/solenoid";
 import { Markdown } from "../../../markdown";
 import RevoltEmbeds from "../embeds";
 import { revolt } from "../../../../lib/revolt";
+import { ColouredUser } from "../../common/ColouredUser";
 
 dayjs.extend(relativeTime);
 
@@ -36,16 +28,19 @@ const [newMessage, setNewMessage] = createSignal<string>();
 
 const [showPicker, setShowPicker] = createSignal<boolean>(false);
 
-const UserMessageBase: Component<{ message: Message }> = ({ message }) => {
+const UserMessageBase: Component<{ message: Message }> = (props) => {
 
   const [replies, setReplies] = createSignal<BaseMessage[] | undefined>();
 
-  message.fetchReplies().then(replies => {
+  createEffect(() => props.message.fetchReplies().then(replies => {
     setReplies(replies);
-  })
+  }));
 
   return (
+
+    <Suspense>
     <div>
+      <Suspense fallback={<p>Loading replies...</p>}>
       <Show when={replies()}>
         <For each={replies()}>
           {reply => reply.isUser() && (
@@ -53,29 +48,11 @@ const UserMessageBase: Component<{ message: Message }> = ({ message }) => {
               <span>^</span>
               <div class="avatar">
                 <div class="w-5 h-5 rounded-full">
-                  <img src={reply.author.generateAvatarURL() || ""} />
+                  <img alt={`${reply.author.username}'s profile picture`} src={reply.author.generateAvatarURL() || ""} />
                 </div>
               </div>
               <div>
-                <span
-                  class={ reply.member.colorRole && reply.member.colorRole.color.includes("gradient") ?
-                    css`
-                    background: ${reply.member.colorRole.color};
-                    background-clip: text;
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                  `
-                  : css `
-                    color: ${reply.member.colorRole?.color || "inherit"};
-                  `
-                }>
-                  {
-                    reply.masquerade?.name
-                    || reply.member?.nickname
-                    || reply.author?.username
-                    || "Random Revolt User"
-                  }
-                </span>
+                <ColouredUser message={props.message} />
               </div>
               <div>
                 <Markdown content={
@@ -86,46 +63,29 @@ const UserMessageBase: Component<{ message: Message }> = ({ message }) => {
           )}
         </For>
       </Show>
+      </Suspense>
       <div class="flex gap-2 hover:bg-black/25">
         <div class="ml-2 mr-1 avatar top-3">
           <div class="w-9 h-9 rounded-full">
-            <img src={ message.generateMasqAvatarURL() || message.member.generateAvatarURL() || message.author.generateAvatarURL()} />
+            <img alt={`${props.message.author?.username}'s profile picture`} src={ props.message.generateMasqAvatarURL() || props.message.member.generateAvatarURL() || props.message.author.generateAvatarURL()} />
           </div>
         </div>
         <div class="my-2 w-full">
           <div>
-            <span
-              class={ message.member.colorRole && message.member.colorRole.color.includes("gradient") ?
-                css`
-                  background: ${message.member.colorRole.color};
-                  background-clip: text;
-                  -webkit-background-clip: text;
-                  -webkit-text-fill-color: transparent;
-                `
-                : css `
-                  color: ${message.member.colorRole?.color || "inherit"};
-                `
-              }>
-              {
-                message.masquerade?.name
-                || message.member?.nickname
-                || message.author?.username
-                || "Random Revolt User"
-              }
-            </span>
+            <ColouredUser message={props.message} />
           </div>
           <div class="mr-3">
-            <Markdown content={message.content || ""} />
+            <Markdown content={props.message.content || ""} />
           </div>
-          <Show when={message.attachments}>
+          <Show when={props.message.attachments}>
             <div class="my-2 mr-2">
-              <For each={message.attachments}>
+              <For each={props.message.attachments}>
                 {attachment => (
                   <Switch>
                     <Match when={attachment.metadata.type == "Image"}>
                       <img
                         src={attachment.generateURL()}
-                        class="max-w-64 max-h-64"
+                        class="max-w-screen-md max-h-96"
                       />
                     </Match>
                     <Match when={attachment.metadata.type === "Video"}>
@@ -146,9 +106,13 @@ const UserMessageBase: Component<{ message: Message }> = ({ message }) => {
               </For>
             </div>
           </Show>
+          <Show when={props.message.embeds}>
+            <RevoltEmbeds message={props.message} />
+          </Show>
         </div>
       </div>
     </div>
+      </Suspense>
   );
 };
 

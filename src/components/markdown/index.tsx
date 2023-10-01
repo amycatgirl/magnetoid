@@ -39,7 +39,7 @@ const components = {
   spoiler: RenderSpoiler,
   a: RenderAnchor,
   p: styled.p<{ ["emoji-size"]?: "medium" | "large" }>`
-    word-break: break-all;
+    word-break: break-words;
     margin: 0;
     > code {
       padding: 1px 4px;
