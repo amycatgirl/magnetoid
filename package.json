@@ -11,6 +11,7 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@solid-primitives/storage": "^2.1.1",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "autoprefixer": "^10.4.16",
@@ -24,6 +25,7 @@
     "vite-plugin-solid": "latest"
   },
   "dependencies": {
+    "@solid-primitives/scheduled": "^1.4.1",
     "@tailwindcss/typography": "^0.5.10",
     "@types/hast": "^2.3.6",
     "@types/unist": "^2.0.8",
@@ -46,8 +48,8 @@
     "remark-math": "^5.1.1",
     "remark-parse": "^10.0.2",
     "remark-rehype": "^10.1.0",
-    "revolt-toolset": "^1.0.66",
-    "revolt.js": "^6.0.20",
+    "revkit": "^1.1.14",
+    "revolt.js": "7.0.0-beta.9",
     "solid-hcaptcha": "^0.2.6",
     "solid-icons": "^1.0.12",
     "solid-js": "^1.7.12",

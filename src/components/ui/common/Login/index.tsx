@@ -9,7 +9,7 @@ import {
 } from "solid-js";
 import { SetStoreFunction } from "solid-js/store";
 import type { user, settings } from "../../../../types";
-import type { Client } from "revolt-toolset";
+import type { Client } from "revkit";
 import { setSettings } from "../../../../lib/solenoid";
 import { revolt } from "../../../../lib/revolt";
 

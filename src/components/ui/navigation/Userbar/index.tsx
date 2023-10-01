@@ -1,24 +1,20 @@
-import { createMemo, createSignal, For, Match, Show, Switch } from "solid-js";
+import { Component } from "solid-js";
+import { createSignal } from "solid-js";
 import * as Solenoid from "../../../../lib/solenoid";
 import { ulid } from "ulid";
+import type { AxiosRequestConfig } from "axios";
 import Axios from "axios";
 import { revolt } from "../../../../lib/revolt";
-import { debounce } from "../../../../utils";
-
-import type { AxiosRequestConfig } from "axios";
-import type { Component } from "solid-js";
-import type { User } from "revolt.js";
-import { BiSolidCog, BiSolidFileImage, BiSolidSend, BiSolidHappyBeaming } from "solid-icons/bi";
-import classNames from "classnames";
+import { debounce } from "@solid-primitives/scheduled";
+import { BiSolidCog, BiSolidFileImage, BiSolidSend } from "solid-icons/bi";
 
 const [sending, setSending] = createSignal<boolean>(false);
-const [typing, setTyping] = createSignal<(User | undefined)[]>([]);
 
 async function uploadFile(
   autummURL: string,
   tag: string,
   file: File,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ) {
   const formData = new FormData();
   formData.append("file", file);
@@ -50,8 +46,8 @@ async function sendFile(content: string) {
           file,
           {
             cancelToken: cancel.token,
-          }
-        )
+          },
+        ),
       );
       if (Solenoid.settings.debug) console.log(attachments);
     }
@@ -132,9 +128,7 @@ function startTyping() {
     });
 }
 
-const debouncedStopTyping = createMemo(
-  debounce(stopTyping as (...args: unknown[]) => void, 1000)
-);
+const debouncedStopTyping = debounce(() => stopTyping(), 1000);
 
 async function getStatus() {
   const userinfo = await revolt.api.get("/users/@me");
@@ -144,51 +138,16 @@ async function getStatus() {
 
 const Userbar: Component = () => {
   return (
-    <div class="sticky bottom-0 left-0 w-full h-full form-control">
-      <Show when={typing().length > 0 }>
-        <div class="flex flex-row items-center gap-2 bg-base-100 relative top-0 left-0 w-full h-10">
-          <div class="avatar-group -space-x-6">
-            <For each={typing()}>
-              {(user) => (
-                <div class="avatar">
-                  <div class="w-8">
-                    <img
-                      src={user?.generateAvatarURL() || user?.defaultAvatarURL}
-                      width={32}
-                      height={32}
-                    />
-                  </div>
-                </div>
-              )}
-            </For>
-          </div>
-          <div>
-            <Switch>
-              <Match when={typing().length === 1}>
-                <span>{typing()[0]?.username} is typing...</span>
-              </Match>
-              <Match when={typing().length === 2}>
-                <span>{typing()[0]?.username} and {typing()[1]?.username} are typing...</span>
-              </Match>
-              <Match when={typing().length === 3}>
-                <span>{typing()[0]?.username}, {typing()[1]?.username} and {typing()[2]?.username} are typing...</span>
-              </Match>
-              <Match when={typing().length > 3}>
-                <span>Panic!</span>
-              </Match>
-            </Switch>
-          </div>
-        </div>
-      </Show>
-      <div class="flex input-group">
+    <div class='sticky bottom-0 w-full h-full form-control'>
+      <div class='flex input-group relative'>
         <button
-          class="btn"
-          aria-label="Username"
-          onClick={() => {
+          class='btn !rounded-none'
+          aria-label='Username'
+          onClick={async () => {
             if (Solenoid.settings.show) {
               Solenoid.setSettings("show", false);
             } else {
-              getStatus();
+              await getStatus();
               Solenoid.setSettings("show", true);
             }
           }}
@@ -197,10 +156,9 @@ const Userbar: Component = () => {
           <BiSolidCog />
         </button>
         <input
-          class="w-full input resize-none"
-          title="Message"
-          aria-role="input"
-          placeholder="Message"
+          class='w-full input bg-base-300 resize-none'
+          title='Message'
+          placeholder='Message'
           value={Solenoid.newMessage()}
           onChange={(e: any) => {
             Solenoid.setNewMessage(e.currentTarget.value);
@@ -208,33 +166,41 @@ const Userbar: Component = () => {
           onInput={() => {
             startTyping();
           }}
-          onKeyDown={() => {
+          onKeyDown={async (e) => {
+            if (e.key === "enter") {
+              await sendMessage(Solenoid.newMessage());
+              debouncedStopTyping.clear();
+            }
             debouncedStopTyping();
           }}
           maxlength={2000}
           autofocus
         />
         <button
-          class={classNames({
-            btn: true,
+          class='btn !rounded-none'
+          classList={{
             "btn-disabled": sending(),
-          })}
-          aria-label="Send"
+          }}
+          aria-label='Send'
           disabled={sending()}
           onClick={() => sendMessage(Solenoid.newMessage())}
         >
           <BiSolidSend />
         </button>
         <input
-          class="hidden"
-          type="file"
+          class='hidden'
+          type='file'
           multiple
-          name="upload"
-          id="files"
-          accept="image/png,image/jpeg,image/gif,video/mp4"
-          onChange={(e: any) => Solenoid.setImages([...e.target.files])}
+          name='upload'
+          id='files'
+          accept='image/png,image/jpeg,image/gif,video/mp4'
+          onChange={(e) => Solenoid.setImages([...e.target.files!])}
         />
-        <label for="files" role="button" class="btn">
+        <label
+          for='files'
+          role='button'
+          class='btn !rounded-none'
+        >
           <BiSolidFileImage />
         </label>
       </div>

@@ -1,20 +1,18 @@
-import Axios from "axios";
-import { Reaction, runInAction } from "mobx";
+import { Reaction } from "mobx";
 import {
+  batch,
   Component,
-  createEffect, enableExternalSource,
+  createEffect,
+  enableExternalSource,
   For,
-  Show
+  onCleanup,
+  Show,
 } from "solid-js";
-import { produce } from "solid-js/store";
-import { ulid } from "ulid";
 import "./styles/main.css";
 
 // Components
 import { Login as LoginComponent } from "./components/ui/common/Login";
 import { MessageContainer } from "./components/ui/messaging/Message/Container";
-// Types
-import type { AxiosRequestConfig } from "axios";
 
 // Revolt Client
 import { revolt as client } from "./lib/revolt";
@@ -49,98 +47,6 @@ client.on("packet", async (info) => {
   }
 });
 
-
-
-// Upload image to autumn.revolt.chat
-async function uploadFile(
-  autummURL: string,
-  tag: string,
-  file: File,
-  config?: AxiosRequestConfig
-) {
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const res = await Axios.post(`${autummURL}/${tag}`, formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-    ...config,
-  });
-
-  return res.data.id;
-}
-
-// Send message with file
-async function sendFile(content: string) {
-  const attachments: string[] = [];
-
-  const cancel = Axios.CancelToken.source();
-  const files: any | undefined = Solenoid.images();
-
-  try {
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      attachments.push(
-        await uploadFile(
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          client.config.features.autumn.url,
-          "attachments",
-          file,
-          {
-            cancelToken: cancel.token,
-          }
-        )
-      );
-      if (Solenoid.settings.debug) console.log(attachments);
-    }
-  } catch (e) {
-    if ((e as any)?.message === "cancel") {
-      return;
-    } else {
-      if (Solenoid.settings.debug) console.log((e as any).message);
-    }
-  }
-
-  const nonce = ulid();
-
-  try {
-    await Solenoid.servers.current_channel?.send({
-      content,
-      nonce,
-      attachments,
-      replies: Solenoid.replies(),
-    });
-  } catch (e: unknown) {
-    if (Solenoid.settings.debug) console.log((e as any).message);
-  }
-}
-
-// Send Message Handler
-async function sendMessage(message: string) {
-  const nonce = ulid();
-  if (Solenoid.servers.current_channel) {
-    if (Solenoid.images()) {
-      await sendFile(message);
-    } else if (Solenoid.replies()) {
-      Solenoid.servers.current_channel?.send({
-        content: message,
-        replies: Solenoid.replies(),
-        nonce,
-      });
-    } else {
-      Solenoid.servers.current_channel?.send({
-        content: message,
-        nonce,
-      });
-    }
-  }
-  Solenoid.setNewMessage("");
-  Solenoid.setReplies([]);
-  Solenoid.setImages(undefined);
-  Solenoid.setShowPicker(false);
-}
-
 // Mobx magic (Thanks Insert :D)
 let id = 0;
 enableExternalSource((fn, trigger) => {
@@ -156,17 +62,17 @@ enableExternalSource((fn, trigger) => {
 });
 
 const App: Component = () => {
-
   // Image Attaching
   createEffect(() => {
     const newImageUrls: any[] = [];
-    Solenoid.images()?.forEach((image) =>
-    newImageUrls.push(URL.createObjectURL(image))
+    (Solenoid.images() as File[])?.forEach((image) =>
+      newImageUrls.push(URL.createObjectURL(image)),
     );
     Solenoid.setImgUrls(newImageUrls);
   });
+
   return (
-    <div class="flex flex-grow-0 flex-col w-full h-screen">
+    <div class='flex flex-grow-0 flex-col w-full h-screen'>
       <LoginComponent
         client={client}
         userSetter={Solenoid.setUser}
@@ -175,50 +81,83 @@ const App: Component = () => {
         logged={Solenoid.loggedIn}
         logSetter={Solenoid.setLoggedIn}
       />
-      {Solenoid.loggedIn() && (
-        <>
-          <div class="flex h-full">
-            <Navigation />
-            <Show when={Solenoid.servers.current_server}>
-              <ChannelNavigation />
-            </Show>
-            <div class="container block w-full overflow-y-scroll">
-              {Solenoid.servers.isHome && (
-                <div class="home">
-                  <h1>Solenoid (Beta)</h1>
-                  {window.location.hostname === "localhost" && (
-                    <h3>Running on Local Server</h3>
-                  )}
-                  <p>A lightweight client for revolt.chat made with SolidJS</p>
-                  <br />
-                  <h3>Contributors</h3>
-                  <hr />
-                  <p>Insert: Helped me with Mobx and Revolt.js issues</p>
-                  <p>
-                    RyanSolid:{" "}
-                    <a href="https://codesandbox.io/s/mobx-external-source-0vf2l?file=/index.js">
-                      This
-                    </a>{" "}
-                    code snippet
-                  </p>
-                  <p>
-                    VeiledProduct80: Help me realize i forgot the masquerade
-                    part
-                  </p>
-                  <p>
-                    Mclnooted: <b>sex</b>
-                  </p>
-                </div>
-              )}
-              <div>
-                <Show when={Solenoid.messages()}><MessageContainer /></Show>
-                {Solenoid.servers.current_channel && <Userbar />}
+      <Show when={Solenoid.loggedIn()}>
+        <div class='flex h-full'>
+          <Navigation />
+          <Show when={Solenoid.servers.current_server}>
+            <ChannelNavigation />
+          </Show>
+          <div class='container block w-full overflow-y-scroll'>
+            {Solenoid.servers.isHome && (
+              <div class='home'>
+                <h1>Solenoid (Beta)</h1>
+                {window.location.hostname === "localhost" && (
+                  <h3>Running on Local Server</h3>
+                )}
+                <p>A lightweight client for revolt.chat made with SolidJS</p>
+                <br />
+                <h3>Contributors</h3>
+                <hr />
+                <p>Insert: Helped me with Mobx and Revolt.js issues</p>
+                <p>
+                  RyanSolid:{" "}
+                  <a href='https://codesandbox.io/s/mobx-external-source-0vf2l?file=/index.js'>
+                    This
+                  </a>{" "}
+                  code snippet
+                </p>
+                <p>
+                  VeiledProduct80: Help me realize i forgot the masquerade part
+                </p>
+                <p>
+                  Mclnooted: <b>sex</b>
+                </p>
               </div>
+            )}
+            <div>
+              <Show when={Solenoid.messages()}>
+                <MessageContainer />
+              </Show>
+              <Show when={Solenoid.servers.current_channel}>
+                <Show when={Solenoid.images() && Solenoid.images()!.length > 0}>
+                  <div class='sticky bottom-12 flex gap-4 w-full max-h-auto bg-base-200 p-4 overflow-x-scroll'>
+                    <For each={Solenoid.imgUrls()}>
+                      {(img, index) => (
+                        <div
+                          class='hover:brightness-50 transition-all ease-in-out'
+                          onClick={() => {
+                            Solenoid.setImages((prev) =>
+                              (prev as File[]).filter(
+                                (_, imgIndex) => index() !== imgIndex,
+                              ),
+                            );
+                          }}
+                        >
+                          <img
+                            class='max-w-48 max-h-48 rounded-md'
+                            src={img}
+                            loading='lazy'
+                          />
+                        </div>
+                      )}
+                    </For>
+                    <div
+                      class='self-center btn btn-error'
+                      onClick={() => Solenoid.setImages(null)}
+                    >
+                      <p>Remove all attachments</p>
+                    </div>
+                  </div>
+                </Show>
+                <Userbar />
+              </Show>
             </div>
           </div>
-        </>
-      )}
-      {Solenoid.settings.show && <Settings />}
+        </div>
+      </Show>
+      <Show when={Solenoid.settings.show}>
+        <Settings />
+      </Show>
     </div>
   );
 };

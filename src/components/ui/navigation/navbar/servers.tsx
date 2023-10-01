@@ -1,42 +1,37 @@
 import { Component, Match, Switch } from "solid-js";
-import type { Server } from "revolt-toolset";
+import type { Server } from "revkit";
 import { createSignal, For } from "solid-js";
 import { revolt } from "../../../../lib/revolt";
 import { setServers, servers } from "../../../../lib/solenoid";
 import classNames from "classnames";
-import { BiSolidHome } from "solid-icons/bi"
+import { BiSolidHome } from "solid-icons/bi";
 
 const [serverlist, setServerList] = createSignal<Server[]>([]);
 
 const Navigation: Component = () => {
   setServerList(revolt.servers.items());
   return (
-    <div class="flex flex-col h-screen bg-base-300 px-4">
+    <div class='flex flex-col h-screen bg-base-300 px-4'>
       <button
         onClick={() => {
           setServers("current_server", undefined);
           setServers("current_channel", undefined);
           setServers("isHome", true);
         }}
-        class={classNames({
-          btn: true,
+        class='btn btn-circle my-2 w-full h-auto'
+        classList={{
           "btn-active": servers.isHome,
-          "my-2": true,
-          "w-full": true
-        })}
+        }}
       >
         <BiSolidHome />
       </button>
       <For each={serverlist()}>
         {(server) => (
           <button
-            class={
-              classNames({
-                btn: true,
-                "btn-active": servers.current_server === server,
-                "my-2": true
-              })
-            }
+            class='my-2 btn btn-circle'
+            classList={{
+              "btn-active": servers.current_server === server,
+            }}
             onClick={() => {
               setServers("current_server", server);
               setServers("isHome", false);
@@ -44,23 +39,15 @@ const Navigation: Component = () => {
           >
             <Switch>
               <Match when={server.icon}>
-                <div class="avatar" onClick={() => {
-                  setServers("current_server", server);
-                  setServers("current_channel", undefined);
-                  setServers("isHome", false);
-                }}>
-                  <div class="w-12 h-12 rounded-full">
+                <div class='avatar'>
+                  <div class='w-12 h-12 rounded-full'>
                     <img src={server.generateIconURL()} />
                   </div>
                 </div>
               </Match>
               <Match when={!server.icon}>
-                <div class="avatar placeholder" onClick={() => {
-                  setServers("current_server", server);
-                  setServers("current_channel", undefined);
-                  setServers("isHome", false);
-                }}>
-                  <div class="w-12 h-12 bg-neutral-focus font-bold rounded-full">
+                <div class='avatar placeholder'>
+                  <div class='w-12 h-12 bg-neutral-focus font-bold rounded-full'>
                     <span>{server.name[0]}</span>
                   </div>
                 </div>
