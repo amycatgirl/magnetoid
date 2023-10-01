@@ -18,6 +18,7 @@ import { Markdown } from "../../../markdown";
 import RevoltEmbeds from "../embeds";
 import { revolt } from "../../../../lib/revolt";
 import { ColouredUser } from "../../common/ColouredUser";
+import { settings } from "../../../../lib/solenoid";
 
 dayjs.extend(relativeTime);
 
@@ -89,7 +90,7 @@ const UserMessageBase: Component<{ message: Message }> = (props) => {
             <div class='mr-3'>
               <Markdown content={props.message.content || ""} />
             </div>
-            <Show when={props.message.attachments}>
+            <Show when={props.message.attachments && settings.showImages}>
               <div class='my-2 mr-2 h-auto'>
                 <For each={props.message.attachments}>
                   {(attachment) => (

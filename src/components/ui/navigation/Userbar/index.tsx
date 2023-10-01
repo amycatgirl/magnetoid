@@ -156,6 +156,22 @@ const Userbar: Component = () => {
           <BiSolidCog />
         </button>
         <input
+          class='hidden'
+          type='file'
+          multiple
+          name='upload'
+          id='files'
+          accept='image/png,image/jpeg,image/gif,video/mp4'
+          onChange={(e) => Solenoid.setImages([...e.target.files!])}
+        />
+        <label
+          for='files'
+          role='button'
+          class='btn !rounded-none'
+        >
+          <BiSolidFileImage />
+        </label>
+        <input
           class='w-full input bg-base-300 resize-none'
           title='Message'
           placeholder='Message'
@@ -187,22 +203,6 @@ const Userbar: Component = () => {
         >
           <BiSolidSend />
         </button>
-        <input
-          class='hidden'
-          type='file'
-          multiple
-          name='upload'
-          id='files'
-          accept='image/png,image/jpeg,image/gif,video/mp4'
-          onChange={(e) => Solenoid.setImages([...e.target.files!])}
-        />
-        <label
-          for='files'
-          role='button'
-          class='btn !rounded-none'
-        >
-          <BiSolidFileImage />
-        </label>
       </div>
     </div>
   );
