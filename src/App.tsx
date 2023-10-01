@@ -23,6 +23,7 @@ import Navigation from "./components/ui/navigation/navbar/servers";
 import Userbar from "./components/ui/navigation/Userbar";
 import Settings from "./components/ui/settings";
 import * as Solenoid from "./lib/solenoid";
+import { AttachmentBar } from "./components/ui/messaging/attachments/attachmentBar";
 
 // Setup
 client.on("ready", async () => {
@@ -120,34 +121,7 @@ const App: Component = () => {
               </Show>
               <Show when={Solenoid.servers.current_channel}>
                 <Show when={Solenoid.images() && Solenoid.images()!.length > 0}>
-                  <div class='sticky bottom-12 flex gap-4 w-full max-h-auto bg-base-200 p-4 overflow-x-scroll'>
-                    <For each={Solenoid.imgUrls()}>
-                      {(img, index) => (
-                        <div
-                          class='hover:brightness-50 transition-all ease-in-out'
-                          onClick={() => {
-                            Solenoid.setImages((prev) =>
-                              (prev as File[]).filter(
-                                (_, imgIndex) => index() !== imgIndex,
-                              ),
-                            );
-                          }}
-                        >
-                          <img
-                            class='max-w-48 max-h-48 rounded-md'
-                            src={img}
-                            loading='lazy'
-                          />
-                        </div>
-                      )}
-                    </For>
-                    <div
-                      class='self-center btn btn-error'
-                      onClick={() => Solenoid.setImages(null)}
-                    >
-                      <p>Remove all attachments</p>
-                    </div>
-                  </div>
+                  <AttachmentBar setImages={Solenoid.setImages} urls={Solenoid.imgUrls()}/>
                 </Show>
                 <Userbar />
               </Show>

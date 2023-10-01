@@ -24,7 +24,9 @@ export const [messages, setMessages] = createSignal<BaseMessage[]>();
 export const [replies, setReplies] = createSignal<reply[]>([]);
 
 export const [images, setImages] = createSignal<File[] | null>();
-export const [imgUrls, setImgUrls] = createSignal<any[] | null | undefined>([]);
+export const [imgUrls, setImgUrls] = createSignal<string[] | null | undefined>(
+  [],
+);
 export const [pickerType, setPickerType] = createSignal<"react" | "emoji">(
   "emoji",
 );
