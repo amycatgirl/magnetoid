@@ -1,4 +1,4 @@
-import { Component, For, Show } from "solid-js";
+import { Component, For, Show, batch } from "solid-js";
 import * as Solenoid from "../../../../lib/solenoid";
 import { Markdown } from "../../../markdown";
 
@@ -35,8 +35,11 @@ const ChannelNavigation: Component = () => {
                         channel.id === Solenoid.servers.current_channel?.id,
                     }}
                     onClick={async () => {
-                      Solenoid.setServers("current_channel", channel);
-                      Solenoid.setMessages(undefined);
+                      batch(() => {
+                        Solenoid.setServers("current_channel", channel);
+                        Solenoid.setMessages(undefined);
+                      });
+
                       await getMessagesFromChannel();
                     }}
                   >

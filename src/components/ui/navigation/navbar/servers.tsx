@@ -28,7 +28,7 @@ const Navigation: Component = () => {
       <For each={serverlist()}>
         {(server) => (
           <button
-            class='my-2 btn btn-circle'
+            class='my-2 btn btn-circle flex align-center justify-center'
             classList={{
               "btn-active": servers.current_server === server,
             }}
@@ -40,7 +40,7 @@ const Navigation: Component = () => {
             <Switch>
               <Match when={server.icon}>
                 <div class='avatar'>
-                  <div class='w-12 h-12 rounded-full'>
+                  <div class='w-full h-full rounded-full'>
                     <img src={server.generateIconURL()} />
                   </div>
                 </div>
