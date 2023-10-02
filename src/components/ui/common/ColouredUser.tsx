@@ -25,8 +25,9 @@ const ColouredUser: Component<ColouredUserProps> = (props) => {
     >
       {props.message.masquerade?.name ||
         props.message.member?.nickname ||
-        props.message.author?.username ||
-        "Random Revolt User"}
+        props.message.author.displayName ||
+        props.message.author?.tag ||
+        "Unknown User"}
     </span>
   );
 };

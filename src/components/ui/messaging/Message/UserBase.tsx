@@ -16,17 +16,10 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { Markdown } from "../../../markdown";
 import RevoltEmbeds from "../embeds";
-import { revolt } from "../../../../lib/revolt";
 import { ColouredUser } from "../../common/ColouredUser";
 import { settings } from "../../../../lib/solenoid";
 
 dayjs.extend(relativeTime);
-
-const [editing, setEditing] = createSignal<boolean>(false);
-const [editMessageId, setEditMessageId] = createSignal<string>();
-const [newMessage, setNewMessage] = createSignal<string>();
-
-const [showPicker, setShowPicker] = createSignal<boolean>(false);
 
 const UserMessageBase: Component<{ message: Message }> = (props) => {
   const [replies, setReplies] = createSignal<BaseMessage[] | undefined>();
@@ -38,7 +31,7 @@ const UserMessageBase: Component<{ message: Message }> = (props) => {
   );
 
   return (
-    <Suspense>
+    <Suspense fallback={<p>loading</p>}>
       <div>
         <Suspense fallback={<p>Loading replies...</p>}>
           <Show when={replies()}>
@@ -50,7 +43,7 @@ const UserMessageBase: Component<{ message: Message }> = (props) => {
                     <div class='avatar'>
                       <div class='w-5 h-5 rounded-full'>
                         <img
-                          alt={`${reply.author.username}'s profile picture`}
+                          alt={`${reply.author.tag}'s profile picture`}
                           src={reply.author.generateAvatarURL() || ""}
                           loading='lazy'
                         />
