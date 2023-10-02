@@ -1,5 +1,5 @@
 import { UserMessageBase } from "./UserBase";
-import { For, createEffect, onCleanup } from "solid-js";
+import { For, Switch, createEffect, onCleanup, Match } from "solid-js";
 import { messages, servers, setMessages } from "../../../../lib/solenoid";
 
 import type { Component } from "solid-js";
@@ -22,16 +22,17 @@ const MessageContainer: Component = () => {
     <For each={messages()}>
       {(message) => {
         if (message?.isSystem()) {
-          return (
-            <div>
-              <SystemMessageBase sysmessage={message} />
-            </div>
-          );
+          return <SystemMessageBase sysmessage={message} />;
         } else if (message?.isUser()) {
           return (
-            <div>
-              <UserMessageBase message={message} />
-            </div>
+            <Switch>
+              <Match when={message.author.relationship !== "Blocked"}>
+                <UserMessageBase message={message} />
+              </Match>
+              <Match when={message.author.relationship === "Blocked"}>
+                <p>x Blocked message</p>
+              </Match>
+            </Switch>
           );
         }
       }}
