@@ -43,7 +43,7 @@ const UserMessageBase: Component<{ message: Message }> = (props) => {
                     <div class='avatar'>
                       <div class='w-5 h-5 rounded-full'>
                         <img
-                          alt={`${reply.author.tag}'s profile picture`}
+                          alt={`${reply.author.username}'s profile picture`}
                           src={reply.author.generateAvatarURL() || ""}
                           loading='lazy'
                         />
@@ -123,4 +123,4 @@ const UserMessageBase: Component<{ message: Message }> = (props) => {
   );
 };
 
-export { UserMessageBase };
+export default UserMessageBase;

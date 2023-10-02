@@ -1,11 +1,19 @@
-import { UserMessageBase } from "./UserBase";
-import { For, Switch, createEffect, onCleanup, Match } from "solid-js";
+import {
+  For,
+  Switch,
+  createEffect,
+  onCleanup,
+  Match,
+  Suspense,
+  lazy,
+} from "solid-js";
 import { messages, servers, setMessages } from "../../../../lib/solenoid";
 
 import type { Component } from "solid-js";
 import { revolt } from "../../../../lib/revolt";
 import { SystemMessageBase } from "./SystemBase";
 
+const UserMessageBase = lazy(() => import("./UserBase"));
 const MessageContainer: Component = () => {
   createEffect(() => {
     revolt.on(
@@ -27,7 +35,9 @@ const MessageContainer: Component = () => {
           return (
             <Switch>
               <Match when={message.author.relationship !== "Blocked"}>
-                <UserMessageBase message={message} />
+                <Suspense fallback={<p>loading...</p>}>
+                  <UserMessageBase message={message} />
+                </Suspense>
               </Match>
               <Match when={message.author.relationship === "Blocked"}>
                 <p>x Blocked message</p>
