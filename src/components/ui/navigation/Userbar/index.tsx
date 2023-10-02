@@ -1,5 +1,4 @@
-import { Component } from "solid-js";
-import { createSignal } from "solid-js";
+import { Component, createSignal } from "solid-js";
 import * as Solenoid from "../../../../lib/solenoid";
 import { ulid } from "ulid";
 import type { AxiosRequestConfig } from "axios";
@@ -7,6 +6,7 @@ import Axios from "axios";
 import { revolt } from "../../../../lib/revolt";
 import { debounce } from "@solid-primitives/scheduled";
 import { BiSolidCog, BiSolidFileImage, BiSolidSend } from "solid-icons/bi";
+import { Permissions } from "revkit";
 
 const [sending, setSending] = createSignal<boolean>(false);
 
@@ -138,7 +138,14 @@ async function getStatus() {
 
 const Userbar: Component = () => {
   return (
-    <div class='sticky bottom-0 w-full h-full form-control'>
+    <form
+      class='sticky bottom-0 w-full h-full form-control'
+      onSubmit={async (e) => {
+        e.preventDefault();
+        await sendMessage(Solenoid.newMessage());
+        debouncedStopTyping.clear();
+      }}
+    >
       <div class='flex input-group relative'>
         <button
           class='btn !rounded-none'
@@ -174,7 +181,13 @@ const Userbar: Component = () => {
         <input
           class='w-full input bg-base-300 resize-none'
           title='Message'
-          placeholder='Message'
+          placeholder={
+            !Solenoid.servers.current_channel?.permissions.has(
+              Permissions.SendMessage,
+            )
+              ? "mf you don't have permission to send messages"
+              : `Message`
+          }
           value={Solenoid.newMessage()}
           onChange={(e: any) => {
             Solenoid.setNewMessage(e.currentTarget.value);
@@ -182,14 +195,15 @@ const Userbar: Component = () => {
           onInput={() => {
             startTyping();
           }}
-          onKeyDown={async (e) => {
-            if (e.key === "enter") {
-              await sendMessage(Solenoid.newMessage());
-              debouncedStopTyping.clear();
-            }
+          onKeyDown={async () => {
             debouncedStopTyping();
           }}
           maxlength={2000}
+          disabled={
+            !Solenoid.servers.current_channel?.permissions.has(
+              Permissions.SendMessage,
+            )
+          }
           autofocus
         />
         <button
@@ -199,12 +213,12 @@ const Userbar: Component = () => {
           }}
           aria-label='Send'
           disabled={sending()}
-          onClick={() => sendMessage(Solenoid.newMessage())}
+          type='submit'
         >
           <BiSolidSend />
         </button>
       </div>
-    </div>
+    </form>
   );
 };
 

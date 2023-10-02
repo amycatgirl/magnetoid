@@ -57,13 +57,12 @@ const Login: Component<LoginComponent> = (props) => {
         })
         .catch((e) => {
           throw e;
-        })
+        });
       batch(() => {
         props.logSetter(true);
         props.userSetter("session_type", "email");
         props.configSetter("session", props.client.session);
-      })
-
+      });
     } catch (e: any) {
       if (props.solenoid_config.debug) {
         console.log(e);
@@ -71,7 +70,9 @@ const Login: Component<LoginComponent> = (props) => {
       setError(e);
     }
   }
-  async function loginWithSession(session: unknown & { action: "LOGIN", token: string }) {
+  async function loginWithSession(
+    session: unknown & { action: "LOGIN"; token: string },
+  ) {
     try {
       await props.client.login(session.token, "user").catch((e) => {
         throw e;
@@ -94,24 +95,27 @@ const Login: Component<LoginComponent> = (props) => {
 
   return (
     <>
-    <Show when={!props.logged()}>
+      <Show when={!props.logged()}>
         <>
-          <div class="lg:absolute lg:w-1/3 lg:h-auto flex flex-col h-full w-full shadow-none lg:top-36 lg:left-6 md:sm:bg-base-100 lg:bg-base-300/60 backdrop-blur-xl container">
-            <div class="mx-10 my-10 flex items-center gap-2">
-              <div class="w-10">
-                <img src="/favicon.png" />
+          <div class='lg:absolute lg:w-1/3 lg:h-auto flex flex-col h-full w-full shadow-none lg:top-36 lg:left-6 md:sm:bg-base-100 lg:bg-base-300/60 backdrop-blur-xl'>
+            <div class='mx-10 my-10 flex items-center gap-2'>
+              <div class='w-10'>
+                <img
+                  alt="Magnetoid's icon"
+                  src='/favicon.png'
+                />
               </div>
-              <div class="prose">
-                <h1>Solenoid</h1>
+              <div class='prose'>
+                <h1>Magnetoid</h1>
               </div>
-              <div class="prose self-start">
+              <div class='prose self-start'>
                 <Show when={window.location.hostname.includes("localhost")}>
-                  <h5>Dev</h5>
+                  <h5>local</h5>
                 </Show>
               </div>
             </div>
             <form
-              class="mx-10"
+              class='mx-10'
               onSubmit={async (e) => {
                 e.preventDefault();
                 if (email() && password()) {
@@ -119,7 +123,7 @@ const Login: Component<LoginComponent> = (props) => {
                     await loginWithEmail(email() ?? "", password() ?? "").catch(
                       (e) => {
                         throw e;
-                      }
+                      },
                     );
                   } catch (e) {
                     console.error(e);
@@ -127,41 +131,45 @@ const Login: Component<LoginComponent> = (props) => {
                 }
               }}
             >
-              <div class="sm:w-full">
-                <div class="prose m-2">
+              <div class='sm:w-full'>
+                <div class='prose m-2'>
                   <h3>Login with Email</h3>
                 </div>
-                <div class="flex flex-col">
+                <div class='flex flex-col'>
                   <input
-                    class="input input-bordered w-full my-2"
-                    id="email"
-                    type="email"
-                    placeholder="Email"
+                    class='input input-bordered w-full my-2'
+                    id='email'
+                    type='email'
+                    placeholder='Email'
                     value={email() || ""}
                     onInput={(e: any) => setEmail(e.currentTarget.value)}
-                   />
+                  />
                   <input
-                    class="input input-bordered w-full my-2"
-                    id="password"
-                    type="password"
-                    placeholder="Password"
+                    class='input input-bordered w-full my-2'
+                    id='password'
+                    type='password'
+                    placeholder='Password'
                     value={password() || ""}
                     onInput={(e: any) => setPassword(e.currentTarget.value)}
-                   />
+                  />
                   <input
-                    class="input w-full my-2"
-                    id="mfa"
-                    type="text"
-                    placeholder="2fa Token (Optional, Not yet implemented)"
+                    class='input w-full my-2'
+                    id='mfa'
+                    type='text'
+                    placeholder='2fa Token (Optional, Not yet implemented)'
                     disabled
-                   />
-                  <button class="btn w-full my-2" id="submit" type="submit">
+                  />
+                  <button
+                    class='btn w-full my-2'
+                    id='submit'
+                    type='submit'
+                  >
                     Login with Email
                   </button>
                 </div>
 
                 {error() && (
-                  <span class="solenoid-error">
+                  <span class='solenoid-error'>
                     An error has occurred while logging in: {error()}
                   </span>
                 )}
@@ -169,68 +177,73 @@ const Login: Component<LoginComponent> = (props) => {
             </form>
 
             <form
-              class="mx-10"
+              class='mx-10'
               onSubmit={async (e) => {
                 e.preventDefault();
                 await logIntoRevolt(token() ?? "");
               }}
             >
-              <div class="flex flex-col">
-                <div class="prose m-2">
-                  <h3 id="subtitle">Login with Token</h3>
+              <div class='flex flex-col'>
+                <div class='prose m-2'>
+                  <h3 id='subtitle'>Login with Token</h3>
                 </div>
-                <div class="flex flex-col">
+                <div class='flex flex-col'>
                   <input
-                    id="token"
-                    type="text"
-                    class="input input-bordered w-full my-2"
-                    placeholder="Token"
+                    id='token'
+                    type='text'
+                    class='input input-bordered w-full my-2'
+                    placeholder='Token'
                     value={token() || ""}
                     onInput={(e: any) => setToken(e.currentTarget.value)}
-                   />
-                  <button class="btn w-full my-2" id="submit" type="submit">
+                  />
+                  <button
+                    class='btn w-full my-2'
+                    id='submit'
+                    type='submit'
+                  >
                     Login
                   </button>
                 </div>
               </div>
             </form>
             {props.solenoid_config.session && (
-              <div class="flex flex-col w-full items-center gap-2">
-              <button
-                class="btn btn-success w-60"
-                onClick={() => loginWithSession(props.solenoid_config.session)}
-              >
-                {revolt.ws.ready ? "Loading..." :  "Use Existing Session"}
-              </button>
-              <button
-                class="btn btn-error w-60"
-                onClick={() => {
-                  setSettings("session", undefined)
-                  if (revolt.ws.ready) {
-                    revolt.ws.disconnect()
+              <div class='flex flex-col w-full items-center gap-2'>
+                <button
+                  class='btn btn-success w-60'
+                  onClick={() =>
+                    loginWithSession(props.solenoid_config.session)
                   }
-                }}
-              >
-                Remove last session
-              </button>
+                >
+                  {revolt.ws.ready ? "Loading..." : "Use Existing Session"}
+                </button>
+                <button
+                  class='btn btn-error w-60'
+                  onClick={() => {
+                    setSettings("session", undefined);
+                    if (revolt.ws.ready) {
+                      revolt.ws.disconnect();
+                    }
+                  }}
+                >
+                  Remove last session
+                </button>
               </div>
             )}
           </div>
           <div>
-            <div class="hidden lg:block lg:absolute lg:bottom-10 lg:right-10 text-white">
-              <p>
-                Picture by Sebastian Svenson on{" "}
-                <a
-                  class="underline text-blue-400"
-                  href="https://unsplash.com/photos/D1BZo9JlKjM"
-                >
-                  Unsplash
-                </a>
-              </p>
+            <div class='hidden lg:block lg:absolute lg:bottom-10 lg:right-10 text-white'>
+              Photo by{" "}
+              <a href='https://unsplash.com/@pramodtiwari?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText'>
+                Pramod Tiwari
+              </a>{" "}
+              on{" "}
+              <a href='https://unsplash.com/photos/a-close-up-of-a-cell-phone-with-a-blurry-background-2JMKvS2qT9c?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText'>
+                Unsplash
+              </a>
             </div>
             <img
-              class="hidden lg:block lg:w-screen lg:h-screen lg:-z-10"
-              src="https://images.unsplash.com/photo-1660306630560-0ca0e7f47508?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTZ8fHJlbmRlciUyMG51bGx8ZW58MHx8MHx8&auto=format&fit=crop&w=900&q=60"
+              class='hidden lg:block lg:h-screen lg:w-screen lg:-z-10'
+              src='/wallpapers/pramod-tiwari-unsplash.jpg'
             />
           </div>
         </>

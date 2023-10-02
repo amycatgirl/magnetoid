@@ -1,8 +1,7 @@
-import { RE_MENTIONS } from "revolt.js";
 import { styled } from "solid-styled-components";
-
 import { createComponent, CustomComponentProps } from "./remarkRegexComponent";
 import { revolt } from "../../../lib/revolt";
+import type { Component } from "solid-js";
 
 const Mention = styled.a`
   gap: 4px;
@@ -28,9 +27,11 @@ const Mention = styled.a`
   }
 `;
 
-export function RenderMention({ match }: CustomComponentProps) {
+const RE_MENTIONS = /<@([0-9ABCDEFGHJKMNPQRSTVWXYZ]{26})>/g;
 
-  const user = revolt.users.get(match)!;
+const RenderMention: Component<CustomComponentProps> = (props) =>  {
+
+  const user = revolt.users.get(props.match)!;
   return (
     <Mention class="bg-base-300 rounded-full h-max w-max">
       <div class="rounded-full flex w-full items-center gap-2">
@@ -40,7 +41,7 @@ export function RenderMention({ match }: CustomComponentProps) {
             }
             class="w-5 h-5 rounded-full"
           />
-          @{user.username}
+          @{user.tag}
         </div>
     </Mention>
   );
@@ -49,3 +50,5 @@ export function RenderMention({ match }: CustomComponentProps) {
 export const remarkMention = createComponent("mention", RE_MENTIONS, (match: any) =>
   revolt.users.has(match)
 );
+
+export {RenderMention}

@@ -40,6 +40,8 @@ const ChannelNavigation: Component = () => {
                         Solenoid.setMessages(undefined);
                       });
 
+                      channel.ack();
+
                       await getMessagesFromChannel();
                     }}
                   >
