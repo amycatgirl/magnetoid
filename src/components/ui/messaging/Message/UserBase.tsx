@@ -22,18 +22,15 @@ import { settings } from "../../../../lib/solenoid";
 dayjs.extend(relativeTime);
 
 const UserMessageBase: Component<{ message: Message }> = (props) => {
-  const [replies, setReplies] = createSignal<BaseMessage[] | undefined>();
-
-  createEffect(() =>
-    props.message.fetchReplies().then((replies) => {
-      setReplies(replies);
-    }),
-  );
+  const [replies] = createResource(async () => props.message.fetchReplies());
 
   return (
     <Suspense fallback={<p>loading</p>}>
       <div>
-        <Suspense fallback={<p>Loading replies...</p>}>
+        <Show
+          when={!replies.loading}
+          fallback={<p>Loading replies...</p>}
+        >
           <Show when={replies()}>
             <For each={replies()}>
               {(reply) =>
@@ -62,7 +59,7 @@ const UserMessageBase: Component<{ message: Message }> = (props) => {
               }
             </For>
           </Show>
-        </Suspense>
+        </Show>
         <div class='flex gap-2 hover:bg-black/25'>
           <div class='ml-2 mr-1 avatar top-3'>
             <div class='w-9 h-9 rounded-full'>
