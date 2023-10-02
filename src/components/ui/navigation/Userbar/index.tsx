@@ -158,6 +158,7 @@ const Userbar: Component = () => {
               Solenoid.setSettings("show", true);
             }
           }}
+          type='button'
           title={`Logged in as ${Solenoid.usr.username}, Click for Settings`}
         >
           <BiSolidCog />
