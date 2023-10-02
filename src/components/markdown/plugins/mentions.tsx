@@ -1,7 +1,13 @@
 import { styled } from "solid-styled-components";
 import { createComponent, CustomComponentProps } from "./remarkRegexComponent";
 import { revolt } from "../../../lib/revolt";
-import type { Component } from "solid-js";
+import {
+  createEffect,
+  type Component,
+  createResource,
+  Suspense,
+  Show,
+} from "solid-js";
 
 const Mention = styled.a`
   gap: 4px;
@@ -27,28 +33,36 @@ const Mention = styled.a`
   }
 `;
 
-const RE_MENTIONS = /<@([0-9ABCDEFGHJKMNPQRSTVWXYZ]{26})>/g;
+const RE_MENTIONS = /@([0-9ABCDEFGHJKMNPQRSTVWXYZ]{26})/g;
 
-const RenderMention: Component<CustomComponentProps> = (props) =>  {
+const RenderMention: Component<CustomComponentProps> = (props) => {
+  const [user] = createResource(
+    async () => await revolt.users.fetch(props.match),
+  );
+  createEffect(() => console.log(user));
 
-  const user = revolt.users.get(props.match)!;
   return (
-    <Mention class="bg-base-300 rounded-full h-max w-max">
-      <div class="rounded-full flex w-full items-center gap-2">
+    <Mention class='bg-base-300 rounded-full h-max w-max'>
+      <div class='rounded-full flex w-full items-center gap-2'>
+        <Show
+          when={!user.loading}
+          fallback={<p>Loading mention...</p>}
+        >
           <img
-            src={
-              user.generateAvatarURL()
-            }
-            class="w-5 h-5 rounded-full"
+            src={user()!.generateAvatarURL()}
+            class='w-5 h-5 rounded-full'
           />
-          @{user.tag}
-        </div>
+          <p>@{user()!.tag}</p>
+        </Show>
+      </div>
     </Mention>
   );
-}
+};
 
-export const remarkMention = createComponent("mention", RE_MENTIONS, (match: any) =>
-  revolt.users.has(match)
+export const remarkMention = createComponent(
+  "mention",
+  RE_MENTIONS,
+  (match: any) => revolt.users.has(match),
 );
 
-export {RenderMention}
+export { RenderMention };
