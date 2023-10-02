@@ -33,11 +33,10 @@ const Mention = styled.a`
   }
 `;
 
-const RE_MENTIONS = /@([0-9ABCDEFGHJKMNPQRSTVWXYZ]{26})/g;
-
 const RenderMention: Component<CustomComponentProps> = (props) => {
   const [user] = createResource(
-    async () => await revolt.users.fetch(props.match),
+    async () =>
+      (await revolt.users.fetch(props.match)) || revolt.users.get(props.match),
   );
   createEffect(() => console.log(user));
 
@@ -61,7 +60,7 @@ const RenderMention: Component<CustomComponentProps> = (props) => {
 
 export const remarkMention = createComponent(
   "mention",
-  RE_MENTIONS,
+  /<@([0-9ABCDEFGHJKMNPQRSTVWXYZ]{26})>/g,
   (match: any) => revolt.users.has(match),
 );
 
