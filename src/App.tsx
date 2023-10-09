@@ -28,6 +28,7 @@ import MessagesProvider from "./components/providers/messages";
 import Home from "./components/ui/common/Home";
 import SidebarStateProvider from "./components/providers/sidebars";
 import { Portal } from "solid-js/web";
+import { MessageShell } from "./components/ui/navigation/sidebars";
 
 // Setup
 client.on("ready", async () => {
@@ -95,14 +96,13 @@ const App: Component = () => {
               <Navigation />
               <ChannelNavigation />
             </SidebarStateProvider>
-            <div class='w-full h-screen overflow-y-scroll'>
+            <MessageShell>
               {/* TODO: Move this into it's own sidebar ig */}
               <Show when={Solenoid.servers.current_channel}>
 
                 <Show when={Solenoid.messages}>
                   <MessageContainer />
                 </Show>
-
                 {/* TODO: Move this into the "Userbar" (It should be named messagebox but whatever, issue for future me) component  */}
                 <Show when={Solenoid.images() && Solenoid.images()!.length > 0}>
                   <AttachmentBar
@@ -113,19 +113,18 @@ const App: Component = () => {
 
                 <Userbar />
               </Show>
-
               <Show when={Solenoid.servers.isHome}>
                 <Home />
               </Show>
-            </div>
+            </MessageShell>
           </MessagesProvider>
 
 
         </div>
       </Show>
-        <Show when={Solenoid.settings.show}>
-          <Settings />
-        </Show>
+      <Show when={Solenoid.settings.show}>
+        <Settings />
+      </Show>
     </div>
   );
 };
