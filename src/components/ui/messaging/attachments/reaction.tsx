@@ -36,15 +36,15 @@ const Reaction: Component<ReactionProps> = (props) => {
         "cursor-pointer": !local.active,
       }}
     >
-      <Show when={!emoji.loading}>
-        <div class='block w-14 h-auto'>
+      <div class='block w-14 h-auto'>
+        <Show fallback={<p>{local.reaction().emoji}</p>} when={!emoji.loading && emoji()  }>
           <img
             src={emoji()?.imageURL}
             width={56}
             alt={emoji()?.uniqueName}
           />
-        </div>
-      </Show>
+        </Show>
+      </div>
       <p>{local.reaction().users.length}</p>
     </div>
   );
