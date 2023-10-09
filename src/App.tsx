@@ -52,7 +52,8 @@ client.on("packet", async (info) => {
   }
 });
 
-// Mobx magic (Thanks Insert :D)
+// Code is probably no longer needed?
+// Maybe I'll switch to a rjs + solenoid monorepo again, who knows -w- 
 let id = 0;
 enableExternalSource((fn, trigger) => {
   const reaction: any = new Reaction(`externalSource@${++id}`, trigger);
@@ -67,9 +68,9 @@ enableExternalSource((fn, trigger) => {
 });
 
 const App: Component = () => {
-  // Image Attaching
+  // TODO: Move this into the messagebox component
   createEffect(() => {
-    const newImageUrls: any[] = [];
+    const newImageUrls: string[] = [];
     (Solenoid.images() as File[])?.forEach((image) =>
       newImageUrls.push(URL.createObjectURL(image)),
     );
