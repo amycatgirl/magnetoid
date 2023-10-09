@@ -1,4 +1,4 @@
-import { Component, Show, createSignal } from "solid-js";
+import { Component, Show, createEffect, createSignal } from "solid-js";
 import * as Solenoid from "../../../../lib/solenoid";
 import { ulid } from "ulid";
 import type { AxiosRequestConfig } from "axios";
@@ -138,6 +138,15 @@ async function getStatus() {
 }
 
 const MessageBox: Component = () => {
+  
+  createEffect(() => {
+    const newImageUrls: string[] = [];
+    (Solenoid.images() as File[])?.forEach((image) =>
+      newImageUrls.push(URL.createObjectURL(image)),
+    );
+    Solenoid.setImgUrls(newImageUrls);
+  });
+
   return (
     <div
       class='sticky left-0 bottom-0 w-full form-control'
@@ -156,7 +165,6 @@ const MessageBox: Component = () => {
         onSubmit={async (e) => {
           e.preventDefault();
           await sendMessage(Solenoid.newMessage());
-          debouncedStopTyping.clear();
         }}
       >
         <div class='flex input-group relative'>

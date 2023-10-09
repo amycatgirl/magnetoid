@@ -65,16 +65,9 @@ enableExternalSource((fn, trigger) => {
   };
 });
 
-const App: Component = () => {
-  // TODO: Move this into the messagebox component
-  createEffect(() => {
-    const newImageUrls: string[] = [];
-    (Solenoid.images() as File[])?.forEach((image) =>
-      newImageUrls.push(URL.createObjectURL(image)),
-    );
-    Solenoid.setImgUrls(newImageUrls);
-  });
+// TODO: Use routes!
 
+const App: Component = () => {
   return (
     <div class='flex flex-grow-0 flex-col w-full h-screen'>
       <LoginComponent
