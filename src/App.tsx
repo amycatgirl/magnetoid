@@ -122,11 +122,9 @@ const App: Component = () => {
 
         </div>
       </Show>
-      <Portal>
         <Show when={Solenoid.settings.show}>
           <Settings />
         </Show>
-      </Portal>
     </div>
   );
 };
