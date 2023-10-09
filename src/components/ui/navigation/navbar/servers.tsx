@@ -3,12 +3,15 @@ import type { Server } from "revkit";
 import { createSignal, For } from "solid-js";
 import { revolt } from "../../../../lib/revolt";
 import { setServers, servers } from "../../../../lib/solenoid";
-import classNames from "classnames";
 import { BiSolidHome } from "solid-icons/bi";
+import { useMessages } from "../../../providers/messages";
 
 const [serverlist, setServerList] = createSignal<Server[]>([]);
 
 const Navigation: Component = () => {
+
+  const [, setMessages] = useMessages(); 
+
   setServerList(revolt.servers.items());
   return (
     <div class='flex flex-col h-screen bg-base-300 px-4'>
@@ -16,6 +19,7 @@ const Navigation: Component = () => {
         onClick={() => {
           setServers("current_server", undefined);
           setServers("current_channel", undefined);
+          setMessages([]);
           setServers("isHome", true);
         }}
         class='btn btn-circle my-2 w-full h-auto'
@@ -41,7 +45,10 @@ const Navigation: Component = () => {
               <Match when={server.icon}>
                 <div class='avatar'>
                   <div class='w-full h-full rounded-full'>
-                    <img src={server.generateIconURL()} />
+                    <img
+                      alt={`${server.name}'s icon`}
+                      src={server.generateIconURL()}
+                    />
                   </div>
                 </div>
               </Match>

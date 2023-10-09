@@ -1,7 +1,7 @@
 import { Component, For, Setter } from "solid-js";
 
 interface AttachmentBarProps {
-  urls: string[];
+  urls: string[] | null | undefined;
   setImages: Setter<File[] | null | undefined>;
 }
 

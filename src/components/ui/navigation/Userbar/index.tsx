@@ -139,7 +139,7 @@ async function getStatus() {
 const Userbar: Component = () => {
   return (
     <form
-      class='sticky bottom-0 w-full h-full form-control'
+      class='sticky left-0 bottom-0 w-full form-control'
       onSubmit={async (e) => {
         e.preventDefault();
         await sendMessage(Solenoid.newMessage());

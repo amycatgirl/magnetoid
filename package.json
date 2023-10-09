@@ -15,7 +15,7 @@
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "autoprefixer": "^10.4.16",
-    "eslint": "^8.50.0",
+    "eslint": "^8.51.0",
     "eslint-plugin-solid": "^0.13.0",
     "postcss": "^8.4.31",
     "prettier": "^3.0.3",
@@ -25,6 +25,7 @@
     "vite-plugin-solid": "latest"
   },
   "dependencies": {
+    "@solid-primitives/deep": "^0.2.4",
     "@solid-primitives/scheduled": "^1.4.1",
     "@tailwindcss/typography": "^0.5.10",
     "@types/hast": "^2.3.6",

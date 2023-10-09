@@ -24,6 +24,8 @@ import Userbar from "./components/ui/navigation/Userbar";
 import Settings from "./components/ui/settings";
 import * as Solenoid from "./lib/solenoid";
 import { AttachmentBar } from "./components/ui/messaging/attachments/attachmentBar";
+import MessagesProvider from "./components/providers/messages";
+import Home from "./components/ui/common/Home";
 
 // Setup
 client.on("ready", async () => {
@@ -84,49 +86,35 @@ const App: Component = () => {
       />
       <Show when={Solenoid.loggedIn()}>
         <div class='flex h-full'>
-          <Navigation />
-          <Show when={Solenoid.servers.current_server}>
-            <ChannelNavigation />
-          </Show>
-          <div class='container block w-full overflow-y-scroll'>
-            {Solenoid.servers.isHome && (
-              <div class='home'>
-                <h1>Solenoid (Beta)</h1>
-                {window.location.hostname === "localhost" && (
-                  <h3>Running on Local Server</h3>
-                )}
-                <p>A lightweight client for revolt.chat made with SolidJS</p>
-                <br />
-                <h3>Contributors</h3>
-                <hr />
-                <p>Insert: Helped me with Mobx and Revolt.js issues</p>
-                <p>
-                  RyanSolid:{" "}
-                  <a href='https://codesandbox.io/s/mobx-external-source-0vf2l?file=/index.js'>
-                    This
-                  </a>{" "}
-                  code snippet
-                </p>
-                <p>
-                  VeiledProduct80: Help me realize i forgot the masquerade part
-                </p>
-                <p>
-                  Mclnooted: <b>sex</b>
-                </p>
-              </div>
-            )}
-            <div>
-              <Show when={Solenoid.messages()}>
-                <MessageContainer />
-              </Show>
+          <MessagesProvider>
+            <Navigation />
+            <Show when={Solenoid.servers.current_server}>
+              <ChannelNavigation />
+            </Show>
+            <div class='w-full h-screen overflow-y-scroll'>
               <Show when={Solenoid.servers.current_channel}>
-                <Show when={Solenoid.images() && Solenoid.images()!.length > 0}>
-                  <AttachmentBar setImages={Solenoid.setImages} urls={Solenoid.imgUrls()}/>
+
+                <Show when={Solenoid.messages}>
+                  <MessageContainer />
                 </Show>
+
+                <Show when={Solenoid.images() && Solenoid.images()!.length > 0}>
+                  <AttachmentBar
+                    setImages={Solenoid.setImages}
+                    urls={Solenoid.imgUrls()}
+                  />
+                </Show>
+
                 <Userbar />
               </Show>
+
+              <Show when={Solenoid.servers.isHome}>
+                <Home />
+              </Show>
             </div>
-          </div>
+          </MessagesProvider>
+
+
         </div>
       </Show>
       <Show when={Solenoid.settings.show}>

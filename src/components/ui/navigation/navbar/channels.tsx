@@ -1,16 +1,20 @@
 import { Component, For, Show, batch } from "solid-js";
 import * as Solenoid from "../../../../lib/solenoid";
 import { Markdown } from "../../../markdown";
+import { useMessages } from "../../../providers/messages";
+
+const ChannelNavigation: Component = () => {
+
+const [messages, setMessages] = useMessages();
 
 async function getMessagesFromChannel() {
   await Solenoid.servers.current_channel?.messages
     .fetchMultiple({ include_users: true })
-    .then((messages) => Solenoid.setMessages(messages.reverse()));
+    .then((messages) => setMessages(messages.reverse()));
   Solenoid.setServers("isHome", false);
 }
 
-const ChannelNavigation: Component = () => {
-  return (
+return (
     <div class='relative bottom-0 left-0 container w-96 h-screen bg-base-200 px-4 overflow-scroll overflow-x-hidden'>
       <div class='prose py-2'>
         <h2>{Solenoid.servers.current_server?.name}</h2>
@@ -37,7 +41,7 @@ const ChannelNavigation: Component = () => {
                     onClick={async () => {
                       batch(() => {
                         Solenoid.setServers("current_channel", channel);
-                        Solenoid.setMessages(undefined);
+                        setMessages([]);
                       });
 
                       channel.ack();

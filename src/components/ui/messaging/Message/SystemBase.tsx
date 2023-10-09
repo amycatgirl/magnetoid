@@ -8,12 +8,6 @@ const SystemMessageBase: Component<{ sysmessage: SystemMessage }> = (props) => {
         when={props.sysmessage.detail.type === SystemMessageType.UserJoined}
       >
         <div class='flex items-center gap-2'>
-          <div class='w-10 h-10'>
-            <img
-              class='avatar rounded-lg'
-              src='/system.webp'
-            />
-          </div>
           <div class='flex flex-col gap-2'>
             <div>
               <span class='font-semibold'>System</span>
@@ -35,12 +29,6 @@ const SystemMessageBase: Component<{ sysmessage: SystemMessage }> = (props) => {
       </Match>
       <Match when={props.sysmessage.detail.type === SystemMessageType.UserLeft}>
         <div class='flex items-center gap-2'>
-          <div class='w-10 h-10'>
-            <img
-              class='avatar rounded-lg'
-              src='/system.webp'
-            />
-          </div>
           <div class='flex flex-col gap-2'>
             <div>
               <span class='font-semibold'>System</span>
@@ -64,12 +52,6 @@ const SystemMessageBase: Component<{ sysmessage: SystemMessage }> = (props) => {
         when={props.sysmessage.detail.type === SystemMessageType.UserKicked}
       >
         <div class='flex items-center gap-2'>
-          <div class='w-10 h-10'>
-            <img
-              class='avatar rounded-lg'
-              src='/system.webp'
-            />
-          </div>
           <div class='flex flex-col gap-2'>
             <div>
               <span class='font-semibold'>System</span>
@@ -93,12 +75,6 @@ const SystemMessageBase: Component<{ sysmessage: SystemMessage }> = (props) => {
         when={props.sysmessage.detail.type === SystemMessageType.UserBanned}
       >
         <div class='flex items-center gap-2'>
-          <div class='w-10 h-10'>
-            <img
-              class='avatar rounded-lg'
-              src='/system.webp'
-            />
-          </div>
           <div class='flex flex-col gap-2'>
             <div>
               <span class='font-semibold'>System</span>

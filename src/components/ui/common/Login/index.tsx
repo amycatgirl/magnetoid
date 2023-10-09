@@ -38,11 +38,8 @@ const Login: Component<LoginComponent> = (props) => {
     } catch (e: any) {
       if (props.solenoid_config.debug) {
         console.log(e);
-        setError(e);
-      } else {
-        alert(e);
-        setError(e);
       }
+      setError(e.message ?? "No error, check console i guess");
     }
   }
 
@@ -57,35 +54,46 @@ const Login: Component<LoginComponent> = (props) => {
         })
         .catch((e) => {
           throw e;
+        })
+        .then(() => {
+          batch(() => {
+            props.logSetter(true);
+            props.userSetter("session_type", "email");
+            props.configSetter("session", props.client.session);
+          });
         });
-      batch(() => {
-        props.logSetter(true);
-        props.userSetter("session_type", "email");
-        props.configSetter("session", props.client.session);
-      });
     } catch (e: any) {
       if (props.solenoid_config.debug) {
         console.log(e);
       }
-      setError(e);
+      setError(e.message ?? "No error, check console i guess");
     }
   }
   async function loginWithSession(
     session: unknown & { action: "LOGIN"; token: string },
   ) {
     try {
-      await props.client.login(session.token, "user").catch((e) => {
-        throw e;
-      });
-      batch(() => {
-        props.configSetter("session_type", "email");
-        props.configSetter("session", session);
-        props.logSetter(true);
-      });
+      await props.client
+        .login(session.token, "user")
+        .then(() => {
+          batch(() => {
+            props.configSetter("session_type", "email");
+            props.configSetter("session", session);
+            props.logSetter(true);
+          });
+        })
+        .catch((e) => {
+          throw e;
+        });
     } catch (e: any) {
-      setError(e);
+      setError(e.message ?? "No error, check console i guess");
     }
   }
+
+  const [token, setToken] = createSignal<string>();
+  const [email, setEmail] = createSignal<string>();
+  const [password, setPassword] = createSignal<string>();
+  const [error, setError] = createSignal<string>();
 
   onMount(async () => {
     if (props.solenoid_config.session) {
