@@ -1,4 +1,4 @@
-import { Component, For, createResource, createSignal, Show } from "solid-js";
+import { Component, For, createSignal } from "solid-js";
 
 import classNames from "classnames";
 import { revolt } from "../../../lib/revolt";

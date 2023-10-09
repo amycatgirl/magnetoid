@@ -14,9 +14,6 @@ import { servers, } from "../../../../lib/solenoid";
 import type { Component } from "solid-js";
 import { revolt } from "../../../../lib/revolt";
 import { SystemMessageBase } from "./SystemBase";
-import { createStore, produce } from "solid-js/store";
-import { Message } from "revkit";
-import { trackStore } from "@solid-primitives/deep";
 import { useMessages } from "../../../providers/messages";
 
 const UserMessageBase = lazy(() => import("./UserBase"));

@@ -1,12 +1,6 @@
 import { Reaction } from "mobx";
 import {
-  batch,
-  Component,
-  createEffect,
-  enableExternalSource,
-  For,
-  onCleanup,
-  Show,
+  Component, enableExternalSource, Show
 } from "solid-js";
 import "./styles/main.css";
 
