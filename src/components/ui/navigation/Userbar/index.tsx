@@ -1,4 +1,4 @@
-import { Component, createSignal } from "solid-js";
+import { Component, Show, createSignal } from "solid-js";
 import * as Solenoid from "../../../../lib/solenoid";
 import { ulid } from "ulid";
 import type { AxiosRequestConfig } from "axios";
@@ -7,6 +7,7 @@ import { revolt } from "../../../../lib/revolt";
 import { debounce } from "@solid-primitives/scheduled";
 import { BiSolidCog, BiSolidFileImage, BiSolidSend } from "solid-icons/bi";
 import { Permissions } from "revkit";
+import { AttachmentBar } from "../../messaging/attachments/attachmentBar";
 
 const [sending, setSending] = createSignal<boolean>(false);
 
@@ -136,91 +137,105 @@ async function getStatus() {
   Solenoid.setSettings("status", userinfo.status?.presence);
 }
 
-const Userbar: Component = () => {
+const MessageBox: Component = () => {
   return (
-    <form
+    <div
       class='sticky left-0 bottom-0 w-full form-control'
-      onSubmit={async (e) => {
-        e.preventDefault();
-        await sendMessage(Solenoid.newMessage());
-        debouncedStopTyping.clear();
-      }}
     >
-      <div class='flex input-group relative'>
-        <button
-          class='btn !rounded-none'
-          aria-label='Username'
-          onClick={async () => {
-            if (Solenoid.settings.show) {
-              Solenoid.setSettings("show", false);
-            } else {
-              await getStatus();
-              Solenoid.setSettings("show", true);
+
+      {/* TODO: Move this into the "Userbar" (It should be named messagebox but whatever, issue for future me) component  */}
+      <Show when={Solenoid.images() && Solenoid.images()!.length > 0}>
+        <AttachmentBar
+          setImages={Solenoid.setImages}
+          urls={Solenoid.imgUrls()}
+        />
+      </Show>
+
+
+      <form
+        onSubmit={async (e) => {
+          e.preventDefault();
+          await sendMessage(Solenoid.newMessage());
+          debouncedStopTyping.clear();
+        }}
+      >
+        <div class='flex input-group relative'>
+          <button
+            class='btn !rounded-none'
+            aria-label='Username'
+            onClick={async () => {
+              if (Solenoid.settings.show) {
+                Solenoid.setSettings("show", false);
+              } else {
+                await getStatus();
+                Solenoid.setSettings("show", true);
+              }
+            }}
+            type='button'
+            title={`Logged in as ${Solenoid.usr.username}, Click for Settings`}
+          >
+            <BiSolidCog />
+          </button>
+          <input
+            class='hidden'
+            type='file'
+            multiple
+            name='upload'
+            id='files'
+            accept='image/png,image/jpeg,image/gif,video/mp4'
+            onChange={(e) => Solenoid.setImages([...e.target.files!])}
+          />
+          <label
+            for='files'
+            role='button'
+            class='btn !rounded-none'
+          >
+            <BiSolidFileImage />
+          </label>
+          <input
+            class='w-full input bg-base-300 resize-none'
+            title='Message'
+            placeholder={
+              !Solenoid.servers.current_channel?.permissions.has(
+                Permissions.SendMessage,
+              )
+                ? "mf you don't have permission to send messages"
+                : `Message`
             }
-          }}
-          type='button'
-          title={`Logged in as ${Solenoid.usr.username}, Click for Settings`}
-        >
-          <BiSolidCog />
-        </button>
-        <input
-          class='hidden'
-          type='file'
-          multiple
-          name='upload'
-          id='files'
-          accept='image/png,image/jpeg,image/gif,video/mp4'
-          onChange={(e) => Solenoid.setImages([...e.target.files!])}
-        />
-        <label
-          for='files'
-          role='button'
-          class='btn !rounded-none'
-        >
-          <BiSolidFileImage />
-        </label>
-        <input
-          class='w-full input bg-base-300 resize-none'
-          title='Message'
-          placeholder={
-            !Solenoid.servers.current_channel?.permissions.has(
-              Permissions.SendMessage,
-            )
-              ? "mf you don't have permission to send messages"
-              : `Message`
-          }
-          value={Solenoid.newMessage()}
-          onChange={(e: any) => {
-            Solenoid.setNewMessage(e.currentTarget.value);
-          }}
-          onInput={() => {
-            startTyping();
-          }}
-          onKeyDown={async () => {
-            debouncedStopTyping();
-          }}
-          maxlength={2000}
-          disabled={
-            !Solenoid.servers.current_channel?.permissions.has(
-              Permissions.SendMessage,
-            )
-          }
-          autofocus
-        />
-        <button
-          class='btn !rounded-none'
-          classList={{
-            "btn-disabled": sending(),
-          }}
-          aria-label='Send'
-          disabled={sending()}
-          type='submit'
-        >
-          <BiSolidSend />
-        </button>
-      </div>
-    </form>
+            value={Solenoid.newMessage()}
+            onChange={(e: any) => {
+              Solenoid.setNewMessage(e.currentTarget.value);
+            }}
+            onInput={() => {
+              startTyping();
+            }}
+            onKeyDown={async () => {
+              debouncedStopTyping();
+            }}
+            maxlength={2000}
+            disabled={
+              !Solenoid.servers.current_channel?.permissions.has(
+                Permissions.SendMessage,
+              )
+            }
+            autofocus
+          />
+          <button
+            class='btn !rounded-none'
+            classList={{
+              "btn-disabled": sending(),
+            }}
+            aria-label='Send'
+            disabled={sending()}
+            type='submit'
+          >
+            <BiSolidSend />
+          </button>
+        </div>
+      </form>
+
+    </div>
   );
 };
 
-export default Userbar;
+export default MessageBox;

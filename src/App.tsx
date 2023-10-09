@@ -18,17 +18,14 @@ import { MessageContainer } from "./components/ui/messaging/Message/Container";
 import { revolt as client } from "./lib/revolt";
 
 // Import signals and stores
-import ChannelNavigation from "./components/ui/navigation/sidebars/channels";
-import Navigation from "./components/ui/navigation/sidebars/servers";
-import Userbar from "./components/ui/navigation/Userbar";
+
+import { ChannelSidebar, ServerSidebar, MessageShell } from "./components/ui/navigation/sidebars";
+import SidebarStateProvider from "./components/providers/sidebars";
+import MessageBox from "./components/ui/navigation/Userbar";
 import Settings from "./components/ui/settings";
 import * as Solenoid from "./lib/solenoid";
-import { AttachmentBar } from "./components/ui/messaging/attachments/attachmentBar";
 import MessagesProvider from "./components/providers/messages";
 import Home from "./components/ui/common/Home";
-import SidebarStateProvider from "./components/providers/sidebars";
-import { Portal } from "solid-js/web";
-import { MessageShell } from "./components/ui/navigation/sidebars";
 
 // Setup
 client.on("ready", async () => {
@@ -93,8 +90,8 @@ const App: Component = () => {
         <div class='flex h-full'>
           <MessagesProvider>
             <SidebarStateProvider>
-              <Navigation />
-              <ChannelNavigation />
+              <ServerSidebar />
+              <ChannelSidebar />
             </SidebarStateProvider>
             <MessageShell>
               {/* TODO: Move this into it's own sidebar ig */}
@@ -103,15 +100,8 @@ const App: Component = () => {
                 <Show when={Solenoid.messages}>
                   <MessageContainer />
                 </Show>
-                {/* TODO: Move this into the "Userbar" (It should be named messagebox but whatever, issue for future me) component  */}
-                <Show when={Solenoid.images() && Solenoid.images()!.length > 0}>
-                  <AttachmentBar
-                    setImages={Solenoid.setImages}
-                    urls={Solenoid.imgUrls()}
-                  />
-                </Show>
-
-                <Userbar />
+                
+                <MessageBox />
               </Show>
               <Show when={Solenoid.servers.isHome}>
                 <Home />
