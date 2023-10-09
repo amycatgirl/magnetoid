@@ -7,7 +7,7 @@ import { revolt } from "../../../../lib/revolt";
 import { debounce } from "@solid-primitives/scheduled";
 import { BiSolidCog, BiSolidFileImage, BiSolidSend } from "solid-icons/bi";
 import { Permissions } from "revkit";
-import { AttachmentBar } from "../../messaging/attachments/attachmentBar";
+import { AttachmentBar } from "../attachments/attachmentBar";
 
 const [sending, setSending] = createSignal<boolean>(false);
 
@@ -30,6 +30,8 @@ async function uploadFile(
   return res.data.id;
 }
 
+// TODO: MOVE THESE FUNCTIONS TO UTIL
+// TODO: REFACTOR
 async function sendFile(content: string) {
   const attachments: string[] = [];
 

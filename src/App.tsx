@@ -21,7 +21,7 @@ import { revolt as client } from "./lib/revolt";
 
 import { ChannelSidebar, ServerSidebar, MessageShell } from "./components/ui/navigation/sidebars";
 import SidebarStateProvider from "./components/providers/sidebars";
-import MessageBox from "./components/ui/navigation/Userbar";
+import MessageBox from "./components/ui/messaging/Message/MessageBox";
 import Settings from "./components/ui/settings";
 import * as Solenoid from "./lib/solenoid";
 import MessagesProvider from "./components/providers/messages";
