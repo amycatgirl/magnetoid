@@ -27,6 +27,7 @@ import { AttachmentBar } from "./components/ui/messaging/attachments/attachmentB
 import MessagesProvider from "./components/providers/messages";
 import Home from "./components/ui/common/Home";
 import SidebarStateProvider from "./components/providers/sidebars";
+import { Portal } from "solid-js/web";
 
 // Setup
 client.on("ready", async () => {
@@ -121,9 +122,11 @@ const App: Component = () => {
 
         </div>
       </Show>
-      <Show when={Solenoid.settings.show}>
-        <Settings />
-      </Show>
+      <Portal>
+        <Show when={Solenoid.settings.show}>
+          <Settings />
+        </Show>
+      </Portal>
     </div>
   );
 };
