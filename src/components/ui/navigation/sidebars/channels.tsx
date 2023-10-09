@@ -2,20 +2,26 @@ import { Component, For, Show, batch } from "solid-js";
 import * as Solenoid from "../../../../lib/solenoid";
 import { Markdown } from "../../../markdown";
 import { useMessages } from "../../../providers/messages";
+import { useSidebarState } from "../../../providers/sidebars";
 
 const ChannelNavigation: Component = () => {
 
-const [messages, setMessages] = useMessages();
+  const [messages, setMessages] = useMessages();
+  const [state, setState] = useSidebarState();
 
-async function getMessagesFromChannel() {
-  await Solenoid.servers.current_channel?.messages
-    .fetchMultiple({ include_users: true })
-    .then((messages) => setMessages(messages.reverse()));
-  Solenoid.setServers("isHome", false);
-}
+  async function getMessagesFromChannel() {
+    // TODO: Make a resource out of this
+    await Solenoid.servers.current_channel?.messages
+      .fetchMultiple({ include_users: true })
+      .then((messages) => setMessages(messages.reverse()));
+    Solenoid.setServers("isHome", false);
+  }
 
-return (
-    <div class='relative bottom-0 left-0 container w-96 h-screen bg-base-200 px-4 overflow-scroll overflow-x-hidden'>
+  return (
+    <div class='w-full h-screen bg-base-200 max-w-md px-4 overflow-y-scroll overflow-x-hidden'>
+      <div>
+        <button onClick={() => state.server === "shown" ? setState("server", "hidden") : setState("server", "shown")}>Show Servers</button>
+      </div>
       <div class='prose py-2'>
         <h2>{Solenoid.servers.current_server?.name}</h2>
       </div>

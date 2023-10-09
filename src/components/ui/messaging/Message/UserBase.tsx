@@ -23,7 +23,6 @@ import RevoltEmbeds from "../embeds";
 import { ColouredUser } from "../../common/ColouredUser";
 import { settings } from "../../../../lib/solenoid";
 import { revolt } from "../../../../lib/revolt";
-import {trackDeep} from "@solid-primitives/deep";
 
 const Reaction = lazy(() => import("../attachments/reaction"));
 
@@ -43,14 +42,8 @@ const UserMessageBase: Component<{ message: Message }> = (props) => {
 
   const pfp = createMemo(() => avatar(local.message));
 
-  const message = () => trackDeep(local.message);
-
-  createEffect(() => {
-    trackDeep(local.message);
-    console.log(message);
-  })
-
-
+  const message = () => local.message;
+  
   return (
     <Suspense fallback={<p>loading</p>}>
       <div>

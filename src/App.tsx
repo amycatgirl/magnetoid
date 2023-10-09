@@ -18,14 +18,15 @@ import { MessageContainer } from "./components/ui/messaging/Message/Container";
 import { revolt as client } from "./lib/revolt";
 
 // Import signals and stores
-import ChannelNavigation from "./components/ui/navigation/navbar/channels";
-import Navigation from "./components/ui/navigation/navbar/servers";
+import ChannelNavigation from "./components/ui/navigation/sidebars/channels";
+import Navigation from "./components/ui/navigation/sidebars/servers";
 import Userbar from "./components/ui/navigation/Userbar";
 import Settings from "./components/ui/settings";
 import * as Solenoid from "./lib/solenoid";
 import { AttachmentBar } from "./components/ui/messaging/attachments/attachmentBar";
 import MessagesProvider from "./components/providers/messages";
 import Home from "./components/ui/common/Home";
+import SidebarStateProvider from "./components/providers/sidebars";
 
 // Setup
 client.on("ready", async () => {
@@ -84,14 +85,16 @@ const App: Component = () => {
         logged={Solenoid.loggedIn}
         logSetter={Solenoid.setLoggedIn}
       />
+      {/* TODO: Make login component more cleaner, current one is a big ass mess */}
       <Show when={Solenoid.loggedIn()}>
         <div class='flex h-full'>
           <MessagesProvider>
-            <Navigation />
-            <Show when={Solenoid.servers.current_server}>
+            <SidebarStateProvider>
+              <Navigation />
               <ChannelNavigation />
-            </Show>
+            </SidebarStateProvider>
             <div class='w-full h-screen overflow-y-scroll'>
+              {/* TODO: Move this into it's own sidebar ig */}
               <Show when={Solenoid.servers.current_channel}>
 
                 <Show when={Solenoid.messages}>

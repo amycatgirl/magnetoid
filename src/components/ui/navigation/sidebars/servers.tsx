@@ -5,24 +5,31 @@ import { revolt } from "../../../../lib/revolt";
 import { setServers, servers } from "../../../../lib/solenoid";
 import { BiSolidHome } from "solid-icons/bi";
 import { useMessages } from "../../../providers/messages";
-
-const [serverlist, setServerList] = createSignal<Server[]>([]);
+import { useSidebarState } from "../../../providers/sidebars";
 
 const Navigation: Component = () => {
 
-  const [, setMessages] = useMessages(); 
+  const [state, setState] = useSidebarState();
+  const [, setMessages] = useMessages();
+  const [serverlist, setServerList] = createSignal<Server[]>([]);
 
   setServerList(revolt.servers.items());
   return (
-    <div class='flex flex-col h-screen bg-base-300 px-4'>
+    <div classList={
+      {
+        "hidden": state.server === "hidden"
+      }
+    } class='w-full max-w-min px-3 flex flex-col'>
       <button
         onClick={() => {
+          // TODO: Make this a bit clearer
           setServers("current_server", undefined);
           setServers("current_channel", undefined);
+          // TODO: Clear messages on component unmount
           setMessages([]);
           setServers("isHome", true);
         }}
-        class='btn btn-circle my-2 w-full h-auto'
+        class='btn btn-circle my-2 w-12 h-auto'
         classList={{
           "btn-active": servers.isHome,
         }}
@@ -68,3 +75,4 @@ const Navigation: Component = () => {
 };
 
 export default Navigation;
+
