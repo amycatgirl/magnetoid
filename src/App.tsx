@@ -101,6 +101,7 @@ const App: Component = () => {
                   <MessageContainer />
                 </Show>
 
+                {/* TODO: Move this into the "Userbar" (It should be named messagebox but whatever, issue for future me) component  */}
                 <Show when={Solenoid.images() && Solenoid.images()!.length > 0}>
                   <AttachmentBar
                     setImages={Solenoid.setImages}
