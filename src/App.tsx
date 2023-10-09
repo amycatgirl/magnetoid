@@ -101,8 +101,6 @@ const App: Component = () => {
               </Show>
             </MessageShell>
           </MessagesProvider>
-
-
         </div>
       </Show>
       <Show when={Solenoid.settings.show}>
